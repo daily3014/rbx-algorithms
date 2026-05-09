@@ -1,0 +1,16 @@
+name = "daily3014/algorithms"
+version = "0.1.0"
+description = "Collection of various algorithms for Luau"
+authors = ["daily3014"]
+repository = "https://github.com/daily3014/rbx-algorithms"
+license = "MIT"
+
+includes = ["README.md", "pesde.toml", "src/**"]
+
+[target]
+environment = "luau"
+lib = "src/init.luau"
+build_files = ["src"]
+
+[indices]
+default = "https://github.com/pesde-pkg/index"

@@ -1,0 +1,13 @@
+[package]
+name = "daily3014/algorithms"
+description = "Collection of various algorithms for Luau"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+repository = "https://github.com/daily3014/rbx-algorithms"
+
+realm = "shared"
+license = "MIT"
+authors = ["daily3014"]
+
+include = ["src", "src/**", "wally.toml"]
+exclude = ["**"]
