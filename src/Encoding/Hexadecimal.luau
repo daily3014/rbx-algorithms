@@ -60,8 +60,12 @@ end
 
 local Hexadecimal = {}
 
-function Hexadecimal.Encode(Buffer: buffer): string
-	local Length = buffer.len(Buffer)
+function Hexadecimal.Encode(Input: buffer | string): string
+	Input = if type(Input) == "string"
+		then buffer.fromstring(Input)
+		else Input
+
+	local Length = buffer.len(Input)
 	local Hex = buffer.create(Length * 2)
 
 	local Lookup = ENCODE_LOOKUP
@@ -70,14 +74,14 @@ function Hexadecimal.Encode(Buffer: buffer): string
 	local HexCursor = 0
 
 	for Index = 0, Length - Leftover - 1, 8 do
-		local Hex1 = buffer.readu16(Lookup, buffer.readu8(Buffer, Index) * 2)
-		local Hex2 = buffer.readu16(Lookup, buffer.readu8(Buffer, Index + 1) * 2)
-		local Hex3 = buffer.readu16(Lookup, buffer.readu8(Buffer, Index + 2) * 2)
-		local Hex4 = buffer.readu16(Lookup, buffer.readu8(Buffer, Index + 3) * 2)
-		local Hex5 = buffer.readu16(Lookup, buffer.readu8(Buffer, Index + 4) * 2)
-		local Hex6 = buffer.readu16(Lookup, buffer.readu8(Buffer, Index + 5) * 2)
-		local Hex7 = buffer.readu16(Lookup, buffer.readu8(Buffer, Index + 6) * 2)
-		local Hex8 = buffer.readu16(Lookup, buffer.readu8(Buffer, Index + 7) * 2)
+		local Hex1 = buffer.readu16(Lookup, buffer.readu8(Input, Index) * 2)
+		local Hex2 = buffer.readu16(Lookup, buffer.readu8(Input, Index + 1) * 2)
+		local Hex3 = buffer.readu16(Lookup, buffer.readu8(Input, Index + 2) * 2)
+		local Hex4 = buffer.readu16(Lookup, buffer.readu8(Input, Index + 3) * 2)
+		local Hex5 = buffer.readu16(Lookup, buffer.readu8(Input, Index + 4) * 2)
+		local Hex6 = buffer.readu16(Lookup, buffer.readu8(Input, Index + 5) * 2)
+		local Hex7 = buffer.readu16(Lookup, buffer.readu8(Input, Index + 6) * 2)
+		local Hex8 = buffer.readu16(Lookup, buffer.readu8(Input, Index + 7) * 2)
 
 		buffer.writeu16(Hex, HexCursor, Hex1)
 		buffer.writeu16(Hex, HexCursor + 2, Hex2)
@@ -92,7 +96,7 @@ function Hexadecimal.Encode(Buffer: buffer): string
 	end
 
 	for Index = Length - Leftover, Length - 1 do
-		local HexPair = buffer.readu16(Lookup, buffer.readu8(Buffer, Index) * 2)
+		local HexPair = buffer.readu16(Lookup, buffer.readu8(Input, Index) * 2)
 		buffer.writeu16(Hex, HexCursor, HexPair)
 		HexCursor += 2
 	end
@@ -100,8 +104,8 @@ function Hexadecimal.Encode(Buffer: buffer): string
 	return buffer.tostring(Hex)
 end
 
-function Hexadecimal.Decode(Hex: string | buffer): buffer
-	local BufferHex = if type(Hex) == "string" then buffer.fromstring(Hex) else Hex
+function Hexadecimal.Decode(Input: string | buffer): buffer
+	local BufferHex = if type(Input) == "string" then buffer.fromstring(Input) else Input
 	local Length = buffer.len(BufferHex)
 	if Length % 2 ~= 0 then
 		error(`Length must be even, got {Length}`)

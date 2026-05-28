@@ -70,7 +70,7 @@ local function RuntimeJSONDecode(): JSONDecode
 		end
 	end
 
-	if string.match(_VERSION, "zune") ~= nil then
+	if string.match(_VERSION, "^zune") ~= nil then
 		local json = zune.serde.json
 
 		return function<T>(JSON: string): T
@@ -129,13 +129,13 @@ if Bridge.IsCLI then
 	end
 
 	if not Bridge.JSONDecode then
-		function Bridge.JSONDecode<T>(JSON: any)
-			if type(JSON) ~= "string" then
-				return JSON -- probably already decoded
-			end
-
-			-- implement in the future when needed..
-			error("not implemented")
+		-- 1000 iq move
+		local JSON = if Bridge.IsCLI 
+			then require("../src/Encoding/JSON")
+			else require("../Encoding/JSON")
+			
+		function Bridge.JSONDecode<T>(Value: any)
+			return JSON.Decode(Value)
 		end
 	end
 else

@@ -95,7 +95,11 @@ end
 
 local Base64 = {}
 
-function Base64.Encode(Input: buffer): buffer
+function Base64.Encode(Input: buffer | string): buffer
+	Input = if type(Input) == "string"
+		then buffer.fromstring(Input)
+		else Input
+
 	local InputLength = buffer.len(Input)
 	if InputLength == 0 then
 		return buffer.create(0)
@@ -162,7 +166,11 @@ function Base64.Encode(Input: buffer): buffer
 	return Output
 end
 
-function Base64.Decode(Input: buffer): buffer
+function Base64.Decode(Input: buffer | string): buffer
+	Input = if type(Input) == "string"
+		then buffer.fromstring(Input)
+		else Input
+
 	local InputLength = buffer.len(Input)
 	if InputLength == 0 then
 		return buffer.create(0)
