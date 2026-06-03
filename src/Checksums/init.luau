@@ -2,12 +2,12 @@
 local Types = require("./Types")
 type Checksums = Types.Checksums
 
-local Map = {
+local Map: {[any]: string} = table.freeze({
 	CRC32 = "@self/CRC32",
 	Adler32 = "@self/Adler32"
-}
+}) :: any
 
-local Algorithms: Checksums = setmetatable({}, {
+local Algorithms: Checksums = setmetatable({ _Map = Map }, {
 	__index = function(self, Key)
 		if not Map[Key] then
 			error(`{Key} doesn't exist`, 2)

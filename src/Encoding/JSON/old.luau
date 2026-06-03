@@ -168,6 +168,7 @@ local function ParseString(): string
 		end
 		Cursor += 16
 	end
+	
 	while buffer.readu8(ByteTable, buffer.readu8(Src, Cursor)) == 0 do
 		Cursor += 1
 	end

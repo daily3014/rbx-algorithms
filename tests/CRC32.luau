@@ -1,6 +1,5 @@
 --!strict
 local Bridge = require("./Bridge")
-local IsCLI = Bridge.IsCLI
 local Testing = require("./")
 
 type TestVector = {
@@ -9,7 +8,7 @@ type TestVector = {
 }
 
 type TestVectors = {[string]: TestVector}
-local Algorithm = if IsCLI then require("../src/Checksums/CRC32") else require("../Checksums/CRC32")
+local Algorithm = require("../src/Checksums/CRC32")
 
 local TestVectors: TestVectors = {
 	[""] = { Description = "Empty String", Expected = 0x00000000 },

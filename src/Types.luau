@@ -27,6 +27,8 @@ export type Pathfinding = {
 }
 
 export type Groups = {
+	Preload: (Modules: {string}) -> (),
+
 	Checksums: Checksums,
 	Pathfinding: Pathfinding,
 	Encoding: Encoding

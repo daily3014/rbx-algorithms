@@ -8,6 +8,7 @@ end)
 
 Testing.Describe("Encoding", function()
 	require("../tests/Base64")
+	require("../tests/JSON")
 end)
 
 Testing.Complete()

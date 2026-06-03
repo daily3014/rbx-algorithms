@@ -62,14 +62,10 @@ local function CRC32(Message: buffer | string): number
 	local Index = 0
 	local Aligned = Length - 7
 
-	local T0 = TABLE_0
-	local T1 = TABLE_1
-	local T2 = TABLE_2
-	local T3 = TABLE_3
-	local T4 = TABLE_4
-	local T5 = TABLE_5
-	local T6 = TABLE_6
-	local T7 = TABLE_7
+	local T0, T1, T2, T3, T4, T5, T6, T7 =
+		TABLE_0, TABLE_1, TABLE_2,
+		TABLE_3, TABLE_4, TABLE_5,
+		TABLE_6, TABLE_7
 
 	while Index < Aligned do
 		local Word0 = bit32.bxor(CRC, buffer.readu32(Message, Index))

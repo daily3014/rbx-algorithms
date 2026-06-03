@@ -2,11 +2,11 @@
 local Types = require("./Types")
 type Pathfinding = Types.Pathfinding
 
-local Map = {
+local Map: {[any]: string} = table.freeze({
 	AStar = "@self/AStar",
-}
+}) :: any
 
-local Algorithms: Pathfinding = setmetatable({}, {
+local Algorithms: Pathfinding = setmetatable({ _Map = Map }, {
 	__index = function(self, Key)
 		if not Map[Key] then
 			error(`{Key} doesn't exist`, 2)

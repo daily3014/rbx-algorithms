@@ -2,8 +2,11 @@
 --!nolint BuiltinGlobalWrite
 -- Thanks @Sythivo :)
 
-if not warn then
-	-- Lua CLI compatibility
+local Bridge = require("@self/Bridge")
+local IsCLI = Bridge.IsCLI
+local NO_COLORS = false
+
+if not warn or IsCLI then
 	warn = print
 	task = { wait = function() end }
 end
@@ -21,6 +24,7 @@ type BasicCases = {
 	ToHaveLength: (Expected: number) -> (),
 	ToBeFalsy: () -> (),
 	ToBeTruthy: () -> (),
+	ToContain: (Pattern: string) -> (),
 }
 
 type ExpectCases = BasicCases & {
@@ -86,6 +90,18 @@ local DeferQueue = {} :: { () -> () }
 local ScopeStack = {} :: { string }
 local TestStack = {} :: { string }
 
+local Colors, RESET = {
+	Red = "\027[31m",
+	Green = "\027[32m",
+}, "\027[0m"
+local function Colored(String: any, Color: string)
+	if not IsCLI or NO_COLORS then
+		return String
+	end
+
+	return `{Color}{String}{RESET}`
+end
+
 local function NonEmptyString(Value: any?): boolean
 	return type(Value) == "string" and #Value > 1
 end
@@ -131,15 +147,15 @@ local function RunTest(Function: () -> (), Info: TestInfo)
 	Ok = xpcall(Function, function(ErrorMessage)
 		local LastName = debug.info(1, "n")
 		local WasIntentional = debug.info(2, "n") == "error"
-		local ShortSource, SourceScript
+		local ShortSource: string, SourceScript: Instance
 
 		for Index = 1, 30 do
-			local DebugFunction, Name, Line, Source = debug.info(Index + 1, "fnls")
+			local DebugFunction: () -> (), Name: string, Line: number, Source: string = debug.info(Index + 1, "fnls")
 			if not DebugFunction then
 				break
 			end
 
-			local LineNumber = LastName
+			local FunctionName = LastName
 			if #StackTrace > 0 or NonEmptyString(Name) then
 				LastName = Name
 			end
@@ -151,19 +167,22 @@ local function RunTest(Function: () -> (), Info: TestInfo)
 				continue
 			end
 
+			if FunctionName == "Test" or FunctionName == "Describe" then
+				continue
+			end
+
 			local ShortenedSource = ShortSource or Source
 
 			if not ShortSource then
 				local SourceEnv = getfenv(DebugFunction)
 				if SourceEnv and SourceEnv.script then
 					SourceScript = SourceEnv.script :: Instance
-
 					ShortenedSource = `{SourceScript.Parent}.{SourceScript}`
 					ShortSource = ShortenedSource
 				end
 			end
 
-			table.insert(StackTrace, WriteStackTrace(ShortenedSource, LineNumber :: string, Line, tostring(DebugFunction)))
+			table.insert(StackTrace, WriteStackTrace(ShortenedSource, FunctionName :: string, Line, tostring(DebugFunction)))
 		end
 
 		Error = ErrorMessage
@@ -186,7 +205,7 @@ local function RunTest(Function: () -> (), Info: TestInfo)
 	end
 	table.clear(DeferQueue)
 
-	local TestType = Ok and "PASS" or "FAIL"
+	local TestType = Ok and Colored("PASS", Colors.Green) or Colored("FAIL", Colors.Red)
 	if Ok then
 		print(`{TestType}{Scope} [{FormatTime(TimeLength)}]`)
 	else
@@ -255,7 +274,7 @@ function Testing.Complete(): ()
 	local Count = Testing.Count
 	local Failed = Testing.Failed
 	if Failed > 0 then
-		print(` Tests: {Failed} failed, {Count} total`)
+		print(` Tests: {Colored(`{Failed} failed`, Colors.Red)}, {Count} total`)
 	else
 		print(` Tests: {Count} total`)
 	end
@@ -547,6 +566,17 @@ local Conditionals = {
 				FlipTag(self.Flipped)
 			)
 		end
+	end,
+
+	ToContain = function(self: ConditionState, Pattern: string)
+		AssertExpect(
+			self.Flipped,
+			self.Received:find(Pattern, 1, true) ~= nil,
+			"Expected %s to %scontain %s",
+			Readable(self.Received),
+			FlipTag(self.Flipped),
+			Readable(Pattern)
+		)
 	end,
 }
 
